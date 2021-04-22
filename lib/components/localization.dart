@@ -90,19 +90,26 @@ class FatalErrorI18NMessagesState extends I18NMessagesState {
 typedef Widget I18NWidgetCreator(I18NMessages messages);
 
 class I18NLoadingContainer extends BlocContainer {
-  final I18NWidgetCreator _creator;
+  I18NWidgetCreator creator;
+  String viewKey;
 
-  I18NLoadingContainer(this._creator);
+  I18NLoadingContainer({
+    @required String viewKey,
+    @required I18NWidgetCreator creator,
+  }) {
+    this.creator = creator;
+    this.viewKey = viewKey;
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<I18NMessagesCubit>(
       create: (BuildContext context) {
         final cubit = I18NMessagesCubit();
-        cubit.reload(I18NWebClient());
+        cubit.reload(I18NWebClient(this.viewKey));
         return cubit;
       },
-      child: I18NLoadingView(this._creator),
+      child: I18NLoadingView(this.creator),
     );
   }
 }
@@ -118,7 +125,7 @@ class I18NLoadingView extends StatelessWidget {
       builder: (context, state) {
         if (state is InitI18NMessagesState ||
             state is LoadingI18NMessagesState) {
-          return ProgressView(message: 'Carregando...');
+          return ProgressView(message: "Loading...");
         }
         if (state is LoadedI18NMessagesState) {
           final messages = state._messages;
@@ -133,11 +140,12 @@ class I18NLoadingView extends StatelessWidget {
 class I18NMessagesCubit extends Cubit<I18NMessagesState> {
   I18NMessagesCubit() : super(InitI18NMessagesState());
 
-  reload(I18NWebClient clientI18n) {
+  reload(I18NWebClient client) {
     emit(LoadingI18NMessagesState());
-    clientI18n.findAll().then((messages) =>
-      emit(
-          LoadedI18NMessagesState(I18NMessages(messages)),
-      ));
+    client.findAll().then(
+          (messages) => emit(
+        LoadedI18NMessagesState(I18NMessages(messages)),
+      ),
+    );
   }
 }
