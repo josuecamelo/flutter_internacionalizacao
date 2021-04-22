@@ -12,6 +12,8 @@ void main() {
   runApp(BytebankApp());
 }
 
+//alterado
+
 class LogObserver extends BlocObserver {
   @override
   void onChange(Cubit cubit, Change change) {

@@ -7,20 +7,28 @@ import 'package:bytebank/screens/transactions_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+//alterado
+
 class DashboardContainer extends BlocContainer {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => NameCubit("Guilherme"),
-     child: DashboardView(),
+     child: I18NLoadingContainer(
+        (messages) => DashboardView(DashboardViewLazyI18n(messages))
+     ),
     );
   }
 }
 
 class DashboardView extends StatelessWidget {
+  final DashboardViewLazyI18n _i18n;
+
+  DashboardView(this._i18n);
+
   @override
   Widget build(BuildContext context) {
-    final i18n = DashboardViewI18n(context);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -44,17 +52,17 @@ class DashboardView extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 children: <Widget>[
                   _FeatureItem(
-                    i18n.transfer(),
+                    _i18n.transfer,
                     Icons.monetization_on,
                     onClick: () => _showContactsList(context),
                   ),
                   _FeatureItem(
-                   i18n.transfer_feed(),
+                    _i18n.transfer_feed,
                     Icons.description,
                     onClick: () => _showTransactionsList(context),
                   ),
                   _FeatureItem(
-                    i18n.change_name(),
+                    _i18n.change_name,
                     Icons.person_outline,
                     onClick: () => _showChangeName(context),
                   ),
@@ -91,6 +99,20 @@ class DashboardView extends StatelessWidget {
   }
 }
 
+class DashboardViewLazyI18n{
+
+  final I18NMessages _messages;
+  DashboardViewLazyI18n(this._messages);
+
+  String get transfer => _messages.get('transfer');
+
+  String get transfer_feed =>
+      _messages.get('transaction_feed');
+
+  String get change_name =>
+      _messages.get('change_name');
+}
+
 class DashboardViewI18n extends ViewI18N{
   DashboardViewI18n(BuildContext context) : super(context);
 
@@ -105,12 +127,11 @@ class DashboardViewI18n extends ViewI18N{
     return localize({"pt-br": "Transações", "en": 'Transactions Feed'});
   }*/
 
-  transfer_feed() {
-    return localize({"pt-br": "Transações", "en": 'Transactions Feed'});
+  String get transfer_feed =>
+    localize({"pt-br": "Transações", "en": 'Transactions Feed'});
 
-  String change_name() {
-    return localize({"pt-br": "Mudar Nome", "en": 'Change Name'});
-  }
+  String get change_name =>
+    localize({"pt-br": "Mudar Nome", "en": 'Change Name'});
 }
 
 class _FeatureItem extends StatelessWidget {
